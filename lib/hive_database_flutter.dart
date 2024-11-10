@@ -33,8 +33,6 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
 
 
   //permission state
-
-
   Future<void> requestStoragePermission() async {
     if (await Permission.storage.request().isGranted) {
       // Permission is granted
