@@ -35,9 +35,10 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
   //permission state
   Future<void> requestStoragePermission() async {
     if (await Permission.storage.request().isGranted) {
-      // Permission is granted
+        print("Permission Granted");
     } else {
       // Permission is denied, handle accordingly
+      print("Permission is denied!");
     }
   }
 
@@ -69,18 +70,18 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Enter Name"
               ),
             ),
             TextField(
               controller: _ageController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: "Enter Name"
               ),
             ),
-          SizedBox(height: 15,),
+          const SizedBox(height: 15,),
             ElevatedButton(
                 onPressed: (){
                   final name = _nameController.text;
@@ -88,7 +89,7 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
                   //validate the text field
                   if(name.isEmpty || age == null){
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Please Enter Valid name and age"))
+                      const SnackBar(content: Text("Please Enter Valid name and age"))
                     );
                   }
                   if(key == null){
@@ -102,12 +103,16 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
                 },
                 child: Text(key == null ? "Add" : "Update",)
             ),
-            SizedBox(height: 25,),
+            const SizedBox(height: 25,),
           ],
         ),
 
       );
     });
+  }
+
+  void deleteOperation(String key){
+    peopleBox.delete(key);
   }
 
   @override
@@ -127,25 +132,49 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
         backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
           onPressed: (){
-
+            addOrUpdate();
           },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
       body: ValueListenableBuilder(
           valueListenable: peopleBox.listenable(),
           builder: (context, box, widget){
             if(box.isEmpty){
-              return Center(child: Text("No Items Added"),);
+              return const Center(child: Text("No Items Added"),);
             }
             return ListView.builder(
               itemCount: box.length,
                 itemBuilder: (context, index){
                 final key = box.keyAt(index).toString();
                 final items = box.get(key);
-                return Padding(padding: EdgeInsets.all(10),
-                child: ListTile(
-                    title: Text(items ? ["name"]?? ""),
-                ),
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    color: Colors.white,
+                    elevation: 2,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Padding(padding: const EdgeInsets.all(10),
+                    child: ListTile(
+                        title: Text(items ? ["name"]?? ""),
+                      subtitle: Text("Age: ${items?["age"]??''}"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                              onPressed: (){
+                                addOrUpdate(key: key);
+                              },
+                              icon: Icon(Icons.edit)),
+                          IconButton(
+                              onPressed: (){
+                                deleteOperation(key);
+                              },
+                              icon: Icon(Icons.delete)),
+                        ],
+                      ),
+                    ),
+                    ),
+                  ),
                 );
                 }
             );
